@@ -26,7 +26,7 @@ function non_surfaces_table(algorithms)
   ]
   open(non_surfaces_table_path, "w") do f
     println(f, join(["instance", "nVertices", "nFaces", "H_1",
-                     ["$(f[2])_$(l)" for f in fields, (algo, label) in algorithms2 for l in add_ref_labels(algo, label)]...], ", "))
+                     ["$(f[2])_$(l)" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
     for example_file in readdir(non_surfaces_dir)[1:1]
       println("Non Surface: $example_file")
       K = load(joinpath(non_surfaces_dir, example_file))
