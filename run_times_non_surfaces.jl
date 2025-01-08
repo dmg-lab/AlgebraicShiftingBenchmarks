@@ -2,7 +2,7 @@ include("benchmark_helpers.jl")
 
 const computer_name = gethostname()
 const root_of_project = dirname(Base.active_project())
-surfaces_table_path = joinpath(root_of_project, "non_surfaces_table_test_$computer_name.csv")
+non_surfaces_table_path = joinpath(root_of_project, "non_surfaces_table_test_$computer_name.csv")
 
 # If `useremote` is set, worker processes are prepared for remote execution asynchronously while the benchmark is running.
 # To be safe from memory leaks etc., the workers are removed at the end of each benchmark.
