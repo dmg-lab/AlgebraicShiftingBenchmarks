@@ -1,5 +1,7 @@
 using Oscar, DataStructures, Distributed
 
+add_ref_labels(alg, alg_labels) = [alg_labels; alg .* ref_labels]
+
 workers_ready = Queue{Task}()
 
 # Asynchronously start a new worker process and initialize it.
@@ -52,10 +54,10 @@ function run_function(f, args...; remote=true, time_limit=1)
   end
 end
 
-include("src/reduction.jl")
+include("reduction.jl")
 function run_benchmark(K, algorithm, F)
   # run(`prlimit -v$(10e9) -c0 --pid $(getpid())`) # limit memory usage, limit in bytes
-  Oscar.set_seed!(1)
+  Oscar.randseed!(1)
   n = n_vertices(K)
 
   # A inject logging to the ref! functions
