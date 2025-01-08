@@ -2,6 +2,8 @@
 
 This repository contains the neccesary scripts, build instructions and examples for benchmarking the implementation of Exterior Algebraic Shifting available in Oscar.jl.
 
+This is the software companion to the article "Faster Algebraic Shifting" by Antony Della Vecchia, Michael Joswig and Fabian Lenzen.
+
 # Setup
 
 ## Setting a memory limit
