@@ -1,5 +1,5 @@
 # include("imports.jl")
-using Revise, Oscar, DataStructures
+using Oscar, DataStructures
 
 Maybe{T} = Union{T, Nothing}
 Logger = Dict{Symbol, Any}
