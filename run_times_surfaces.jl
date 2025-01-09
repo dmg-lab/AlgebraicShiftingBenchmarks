@@ -26,7 +26,7 @@ function surfaces_table(algorithms)
     fpField(UInt(7919)) => "Ftgig",
   ]
   open(surfaces_table_path, "w") do f
-    println(f, join(["instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])_$(l)" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+    println(f, join(["instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
     for example_file in readdir(surfaces_dir)[1:1]
       println("Surface: $example_file")
       K = load(joinpath(surfaces_dir, example_file))

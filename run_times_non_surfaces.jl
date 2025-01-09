@@ -25,8 +25,7 @@ function non_surfaces_table(algorithms)
     fpField(UInt(7919)) => "Ftgig",
   ]
   open(non_surfaces_table_path, "w") do f
-    println(f, join(["instance", "nVertices", "nFaces", "H_1",
-                     ["$(f[2])_$(l)" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+    println(f, join(["instance", "nVertices", "nFaces", "Hone", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
     for example_file in readdir(non_surfaces_dir)[1:1]
       println("Non Surface: $example_file")
       K = load(joinpath(non_surfaces_dir, example_file))
@@ -35,8 +34,8 @@ function non_surfaces_table(algorithms)
         timings = [example_file, n_vertices(S), length(faces(S)), homology(K, 1)]
         for (F, _) in fields, (algo, labels) in algorithms
           result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3)
-          # Append result to timings; if process died for some reson, put in appropriate number of "n/a"
-          append!(timings, isnothing(result) ? fill("oom", length(labels)+length(ref_labels)) : result)
+          n_columns = length(labels) + length(ref_labels)
+          append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
         end
         println(f, join(timings, ", "))
         flush(f)
