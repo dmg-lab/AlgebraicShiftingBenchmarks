@@ -42,7 +42,7 @@ function bipartite_table(examples, algorithms)
   open(bipartite_table_path, "w") do f
     # Print the table headers
     println(f, join(vcat(f, ["instance", "nVertices", "nEdges"], [[alg_labels; alg .* ref_labels] for (alg, alg_labels) in algorithms]...), ", "))
-    for (example_name, G) in examples[1:1]
+    for (example_name, G) in examples
       l = "$example_name, $(n_vertices(G)), $(n_edges(G)), "
       K = uniform_hypergraph(G)
       print(l)
