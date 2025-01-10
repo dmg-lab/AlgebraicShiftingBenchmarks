@@ -43,6 +43,7 @@ function run_function(f, args...; remote=true, time_limit=1)
         return
       else
         @warn "Worker $pid failed with exception $e"
+        showerror(stderr, e)
         return nothing
       end
     finally
@@ -74,12 +75,12 @@ function run_benchmark(K, algorithm, F)
   # The lv algorithm might not run ref! at all.
   logger[:ref] = fill("n/a", length(ref_labels))
   if algorithm == "av"
-    R, x = polynomial_ring(QQ, :x => (1:n, 1:n))
+    R, x = polynomial_ring(K, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf)
     return (t.time, t.bytes, logger[:ref]...)
   elseif algorithm == "avf"
-    R, x = polynomial_ring(QQ, :x => (1:n, 1:n))
+    R, x = polynomial_ring(K, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl)
     return (t.time, t.bytes, logger[:ref]...)
