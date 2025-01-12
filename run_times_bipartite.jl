@@ -66,9 +66,9 @@ end
 
 # Algorithms to run, and the labels for the columns for that algorithm.
 algorithms = [
-  "av"   => ["avTime", "avMemory"],
-  "hv"   => ["hvTime", "hvMemory"],
-  "lv"   => ["lvTime", "lvMemory", "lvTrials", "lvTimeA", "lvMemoryA", "lvTimeB", "lvMemory"],
+  # "av"   => ["avTime", "avMemory"],
+  # "hv"   => ["hvTime", "hvMemory"],
+  # "lv"   => ["lvTime", "lvMemory", "lvTrials", "lvTimeA", "lvMemoryA", "lvTimeB", "lvMemory"],
   "avf"  => ["avfTime", "avfMemory"],
   "hvf"  => ["hvfTime", "hvfMemory"],
   "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]

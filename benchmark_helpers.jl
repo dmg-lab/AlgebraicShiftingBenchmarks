@@ -64,7 +64,7 @@ function run_benchmark(K, algorithm, F)
   # A inject logging to the ref! functions
   logger = Logger()
   logging_rref_cf(m) = ref_ff_rc_wrapper!(m; logger=logger)
-  logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger)
+  logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger, result_is_shifted_n_homogeneous=K.k-1)
 
   # Just to force compilation
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
