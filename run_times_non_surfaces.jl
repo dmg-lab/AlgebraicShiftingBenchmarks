@@ -23,7 +23,7 @@ function non_surfaces_table(algorithms)
     fpField(UInt(3)) => "Fthree",
     GF(9)            => "Fnine",
     fpField(UInt(5)) => "Ffive",
-    GF(25            => "Ftwentyfive",
+    GF(25)           => "Ftwentyfive",
     fpField(UInt(7919)) => "Ftgig",
   ]
   open(non_surfaces_table_path, "w") do f
