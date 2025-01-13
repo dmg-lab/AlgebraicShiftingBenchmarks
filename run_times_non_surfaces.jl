@@ -20,6 +20,7 @@ function non_surfaces_table(algorithms)
   fields = [
     0 => "QQ",
     2 => "F2",
+    4 => "F4",
     3 => "F3",
     9 => "F9",
     5 => "F5",
@@ -50,7 +51,7 @@ end
 
 algorithms = [
   "lv"   => ["lvTime", "lvMemory", "lvTrials", "lvTimeA", "lvMemoryA", "lvTimeB", "lvMemory"],
-  "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]
+  # "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]
 ]
 
 @info "Benchmarking non Surfaces examples"
