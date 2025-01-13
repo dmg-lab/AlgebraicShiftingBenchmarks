@@ -184,7 +184,9 @@ function rref_lazy_pivots!(m::AbstractAlgebra.Generic.MatSpaceElem{T}; logger::M
     append!(s, _stats(m))
     logger[:ref] = s
   end
-  println(stderr, "cleared: $n_cleared/$(size(m, 2))")
+  if n != 0
+    println(stderr, "cleared: $n_cleared/$(size(m, 2))")
+  end
   return r
 end
 

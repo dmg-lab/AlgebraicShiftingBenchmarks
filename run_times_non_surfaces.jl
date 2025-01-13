@@ -18,14 +18,15 @@ function non_surfaces_table(algorithms)
   example_dir = joinpath(root_of_project, "examples")
   non_surfaces_dir = joinpath(example_dir, "non_surfaces")
   fields = [
-    QQ => "QQ",
-    fpField(UInt(2)) => "Ftwo",
-    fpField(UInt(3)) => "Fthree",
-    GF(9)            => "Fnine",
-    fpField(UInt(5)) => "Ffive",
-    GF(25)           => "Ftwentyfive",
-    fpField(UInt(7919)) => "Ftgig",
+    0 => "QQ",
+    2 => "F2",
+    3 => "F3",
+    9 => "F9",
+    5 => "F5",
+    25 => "F25",
+    7919 => "F7919"
   ]
+
   open(non_surfaces_table_path, "w") do f
     println(f, join(["instance", "nVertices", "nFaces", "Hone", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
     for example_file in readdir(non_surfaces_dir)
@@ -35,7 +36,7 @@ function non_surfaces_table(algorithms)
         S = uniform_hypergraph(K, q+1)
         timings = [example_file, n_vertices(S), length(faces(S)), homology(K, 1)]
         for (F, _) in fields, (algo, labels) in algorithms
-          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trals=300)
+          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trials=300)
           n_columns = length(labels) + length(ref_labels)
           append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
         end

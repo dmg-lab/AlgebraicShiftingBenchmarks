@@ -19,11 +19,11 @@ function surfaces_table(algorithms)
   example_dir = joinpath(root_of_project, "examples")
   surfaces_dir = joinpath(example_dir, "surfaces")
   fields = [
-    QQ => "QQ",
-    fpField(UInt(2)) => "Ftwo",
-    fpField(UInt(3)) => "Fthree",
-    fpField(UInt(5)) => "Ffive",
-    fpField(UInt(7919)) => "Ftgig",
+    0 => "QQ",
+    2 => "F2",
+    3 => "F3",
+    5 => "F5",
+    7919 => "F7919"
   ]
   open(surfaces_table_path, "w") do f
     println(f, join(["instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))

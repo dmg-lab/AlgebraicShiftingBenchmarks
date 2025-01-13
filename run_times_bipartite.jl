@@ -48,7 +48,7 @@ function bipartite_table(examples, algorithms)
       print(l)
       timings = []
       for (algo, labels) in algorithms
-        result = run_function(run_benchmark, K, algo, QQ; remote=useremote)
+        result = run_function(run_benchmark, K, algo, 0; remote=useremote)
         # If the process died for some reason, put in appropriate number of "oom" or "oot".
         # The function might also have put n/a in the ref! columns; cf the las vegas algorithm.
         n_columns = length(labels) + length(ref_labels)
