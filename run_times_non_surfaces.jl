@@ -21,7 +21,9 @@ function non_surfaces_table(algorithms)
     QQ => "QQ",
     fpField(UInt(2)) => "Ftwo",
     fpField(UInt(3)) => "Fthree",
+    GF(9)            => "Fnine",
     fpField(UInt(5)) => "Ffive",
+    GF(25            => "Ftwentyfive",
     fpField(UInt(7919)) => "Ftgig",
   ]
   open(non_surfaces_table_path, "w") do f
@@ -33,7 +35,7 @@ function non_surfaces_table(algorithms)
         S = uniform_hypergraph(K, q+1)
         timings = [example_file, n_vertices(S), length(faces(S)), homology(K, 1)]
         for (F, _) in fields, (algo, labels) in algorithms
-          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3)
+          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trals=300)
           n_columns = length(labels) + length(ref_labels)
           append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
         end
