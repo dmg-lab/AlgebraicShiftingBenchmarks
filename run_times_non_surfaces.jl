@@ -25,7 +25,8 @@ function non_surfaces_table(algorithms)
     9 => "F9",
     5 => "F5",
     25 => "F25",
-    7919 => "F7919"
+    7919 => "F7919",
+		62710561 => "F62710561"
   ]
 
   open(non_surfaces_table_path, "w") do f
