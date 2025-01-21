@@ -4,6 +4,8 @@ This repository contains the neccesary scripts, build instructions and examples 
 
 This is the software companion to the article "Faster Algebraic Shifting" by Antony Della Vecchia, Michael Joswig and Fabian Lenzen.
 
+We also include the file `examples.m2`, which was used to run a comparison with the Monte Carlo algorithm implemented in https://github.com/ank1494/ext-shifting .
+
 # Setup
 
 ## Setting a memory limit
