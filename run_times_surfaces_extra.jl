@@ -38,7 +38,7 @@ function surfaces_table_extra(algorithms)
       K = load(joinpath(surfaces_dir, example_file))
       # Parse the filename into the parameters
       dim, n, orientable, genus, index = tryparse.(Int, match(r"d(\d+)_n(\d+)_o(\d+)_g(\d+)_#(\d+)", example_file).captures)
-      if n != 8 || orientable != 1 || genus != 0
+      if n != 8 || orientable != 1 || genus != 0 || index <= 6
         println(stderr, "Skipping")
         continue
       end

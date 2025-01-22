@@ -18,14 +18,14 @@ function non_surfaces_table(algorithms)
   example_dir = joinpath(root_of_project, "examples")
   non_surfaces_dir = joinpath(example_dir, "non_surfaces")
   fields = [
-    0 => "QQ",
-    2 => "F2",
+    # 0 => "QQ",
+    # 2 => "F2",
     4 => "F4",
-    3 => "F3",
+    # 3 => "F3",
     9 => "F9",
-    5 => "F5",
+    # 5 => "F5",
     25 => "F25",
-    7919 => "F7919",
+    # 7919 => "F7919",
 		62710561 => "F62710561"
   ]
 
