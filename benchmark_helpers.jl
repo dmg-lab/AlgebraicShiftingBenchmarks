@@ -24,6 +24,14 @@ function get_worker()
   return fetch(dequeue!(workers_ready))
 end
 
+function show_result(f)
+  return (args...) -> begin
+    result = f(args...)
+    println("$f($args) --> $(result)")
+		return result
+  end
+end
+
 # Run the function `f` with `args...` on the next worker, and shutdown the process afterwards.
 # time_limit is in hours
 function run_function(f, args...; remote=true, time_limit=1, kwargs...)
@@ -31,7 +39,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
     initialize_new_worker() # Initialize new worker asynchronously for later use
     pid = get_worker() # Get initialized worker to run f
     try
-      future = @async remotecall_fetch(f, pid, args...; kwargs...) # call remotely on worker
+      future = @async remotecall_fetch(show_result(f), pid, args...; kwargs...) # call remotely on worker
       println(future)
       if timedwait(()->istaskdone(future), time_limit * 60*60) == :timed_out
         @warn "Remote worker $pid timed out"
@@ -59,7 +67,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
 end
 
 include("reduction.jl")
-function run_benchmark(K, algorithm, fsize::Int; finite_field_lv_trials::Int64=100)
+function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field_lv_trials::Int64=100)
   Oscar.randseed!(1)
   n = n_vertices(K)
   p = perm(reverse(1:n))
@@ -80,26 +88,32 @@ function run_benchmark(K, algorithm, fsize::Int; finite_field_lv_trials::Int64=1
   # The lv algorithm might not run ref! at all.
   logger[:ref] = fill("n/a", length(ref_labels))
   if algorithm == "av"
-    R, x = polynomial_ring(K, :x => (1:n, 1:n))
+    println("Running av algorithm")
+    R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf)
     return (t.time, t.bytes, logger[:ref]...)
   elseif algorithm == "avf"
-    R, x = polynomial_ring(K, :x => (1:n, 1:n))
+    println("Running avf algorithm")
+    R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl)
     return (t.time, t.bytes, logger[:ref]...)
   elseif algorithm == "hv"
+    println("Running hv algorithm")
     t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf)
     return (t.time, t.bytes, logger[:ref]...)
   elseif algorithm == "hvf"
+    println("Running hvf algorithm")
     t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl)
     return (t.time, t.bytes, logger[:ref]...)
   elseif algorithm == "lv"
+    println("Running lv algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
     t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_cf)
     return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
   elseif algorithm == "lvf"
+    println("Running lvf algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
     t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_fl)
     return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
