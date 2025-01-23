@@ -32,13 +32,14 @@ function surfaces_table_extra(algorithms)
   time_limit = 1/6
   println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) * length(fields) * length(algorithms)) hours")
   open(surfaces_extra_table_path, "w") do f
-    println(f, join(["instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+    println(f, join(["instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(field)$(uppercasefirst(l))" for (_,field) in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+    flush(f)
     for example_file in readdir(surfaces_dir)
       println("Surface: $example_file")
       K = load(joinpath(surfaces_dir, example_file))
       # Parse the filename into the parameters
       dim, n, orientable, genus, index = tryparse.(Int, match(r"d(\d+)_n(\d+)_o(\d+)_g(\d+)_#(\d+)", example_file).captures)
-      if n != 8 || orientable != 1 || genus != 0 || index <= 6
+      if n != 8 || orientable != 1 || genus != 0
         println(stderr, "Skipping")
         continue
       end
@@ -49,8 +50,7 @@ function surfaces_table_extra(algorithms)
         for (fieldsize, _) in fields, (algo, labels) in algorithms
           result = run_function(run_benchmark, S, algo, fieldsize; remote=true, time_limit=time_limit)
 					n_columns = length(labels) + length(ref_labels)
-          t = isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result
-					append!(timings, t)
+          append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
         end
         println(f, join(timings, ", "))
         flush(f)
@@ -63,10 +63,10 @@ end
 
 # Algorithms to run, and the labels for the columns for that algorithm.
 algorithms = [
-  "av"   => ["avTime", "avMemory"],
+  # "av"   => ["avTime", "avMemory"],
   "hv"   => ["hvTime", "hvMemory"],
   "lv"   => ["lvTime", "lvMemory", "lvTrials", "lvTimeA", "lvMemoryA", "lvTimeB", "lvMemory"],
-  "avf"  => ["avfTime", "avfMemory"],
+  # "avf"  => ["avfTime", "avfMemory"],
   "hvf"  => ["hvfTime", "hvfMemory"],
   "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]
 ]

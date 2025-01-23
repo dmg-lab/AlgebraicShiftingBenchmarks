@@ -67,8 +67,9 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
 end
 
 include("reduction.jl")
-function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field_lv_trials::Int64=100)
+function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int)
   Oscar.randseed!(1)
+  finite_field_lv_trials::Int64=100
   n = n_vertices(K)
   p = perm(reverse(1:n))
   F = fsize == 0 ? QQ : (is_prime(fsize) ? fpField(UInt(fsize)) : GF(fsize))

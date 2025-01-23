@@ -18,26 +18,25 @@ function non_surfaces_table(algorithms)
   example_dir = joinpath(root_of_project, "examples")
   non_surfaces_dir = joinpath(example_dir, "non_surfaces")
   fields = [
-    # 0 => "QQ",
-    # 2 => "F2",
+    0 => "QQ",
+    2 => "F2",
     4 => "F4",
-    # 3 => "F3",
+    3 => "F3",
     9 => "F9",
-    # 5 => "F5",
+    5 => "F5",
     25 => "F25",
-    # 7919 => "F7919",
+    7919 => "F7919",
 		62710561 => "F62710561"
   ]
 
   open(non_surfaces_table_path, "w") do f
-    println(f, join(["instance", "H1", "index", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields, (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+    println(f, join(["instance", "H1", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
     for example_file in readdir(non_surfaces_dir)
       println("Non Surface: $example_file")
       K = load(joinpath(non_surfaces_dir, example_file))
-      index = match(r"#(\d+)", example_file).captures[1]
       for q in 2:dim(K)
         S = uniform_hypergraph(K, q+1)
-        timings = [example_file, homology(K, 1), index, n_vertices(S), length(faces(S)), q]
+        timings = [example_file, homology(K, 1), n_vertices(S), length(faces(S)), q]
         for (F, _) in fields, (algo, labels) in algorithms
           result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trials=300)
           n_columns = length(labels) + length(ref_labels)
