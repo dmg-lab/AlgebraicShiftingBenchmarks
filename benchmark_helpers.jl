@@ -67,7 +67,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
 end
 
 include("reduction.jl")
-function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int)
+function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field_lv_trials::Int64=100)
   Oscar.randseed!(1)
   finite_field_lv_trials::Int64=100
   n = n_vertices(K)
