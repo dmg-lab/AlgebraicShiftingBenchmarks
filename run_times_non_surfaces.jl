@@ -38,7 +38,7 @@ function non_surfaces_table(algorithms)
         S = uniform_hypergraph(K, q+1)
         timings = [example_file, homology(K, 1), n_vertices(S), length(faces(S)), q]
         for (F, _) in fields, (algo, labels) in algorithms
-          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trials=300)
+          result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trials=500)
           n_columns = length(labels) + length(ref_labels)
           append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
         end
