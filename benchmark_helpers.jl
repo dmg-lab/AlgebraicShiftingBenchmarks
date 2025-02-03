@@ -73,11 +73,10 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   p = perm(reverse(1:n))
   F = fsize == 0 ? QQ : (is_prime(fsize) ? fpField(UInt(fsize)) : GF(fsize))
 
-  # A inject logging to the ref! functions
+  # Inject logging to the ref! functions
   logger = Logger()
   logging_rref_cf(m) = ref_ff_rc_wrapper!(m; logger=logger)
   logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger)
-  # logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger, n=n_vertices(K), k=K.k)
 
   # Just to force compilation
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
@@ -87,6 +86,8 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
 
   # The lv algorithm might not run ref! at all.
   logger[:ref] = fill("n/a", length(ref_labels))
+
+  # Run the respective algorithm
   if algorithm == "av"
     println("Running av algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
