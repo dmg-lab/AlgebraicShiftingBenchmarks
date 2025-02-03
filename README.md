@@ -1,6 +1,6 @@
 # Algebraic Shifting Benchmarks
 
-This repository contains the neccesary scripts, build instructions and examples for benchmarking the implementation of Exterior Algebraic Shifting available in Oscar.jl.
+This repository contains the neccesary scripts and examples for benchmarking the implementation of Exterior Algebraic Shifting available in Oscar.jl.
 
 This is the software companion to the article "Faster Algebraic Shifting" by Antony Della Vecchia, Michael Joswig and Fabian Lenzen.
 
@@ -13,10 +13,10 @@ Setting a ulimit before starting julia and running the script is neccessary.
 Some examples were chosen due to their large memory consumption, and without setting
 a limit the script will not finish.
 
-The following command will set a ulimit of 64 gb.
+The following command will set a ulimit of 80GiB and disables swapping:
 
 ```
-ulimit -v 64000000
+    ulimit -v 80000000 -x 0
 ```
 
 ## Building julia environment
@@ -35,7 +35,6 @@ We have included a Manifest.toml so that a particular branch of Oscar is being u
     julia> ]up
 ```
 
-
 # Experiments
 
 Each experiment has it's own script, where each script is more or less structured the same.
@@ -46,61 +45,11 @@ All scripts can be run one after the other by either running
     julia --project=. run_times.jl
 ```
 
-from the project root or running the following command from a julia repl with the project environment activated.
+We include the following experiments:
 
-```
-    julia> include("run_times.jl")
-```
-
-## Bipartite Graphs
-
-The examples used in the bipartite graph experiments can be found in `run_times_bipartite.jl`.
-
-Running just the bipartite graph benchmark script can be run one after the other by either running 
-
-```
-    julia --project=. run_times_bipartite.jl
-```
-
-from the project root or running the following command from a julia repl with the project environment activated.
-
-```
-    julia> include("run_times_bipartite.jl")
-```
-
-## Surfaces
-
-The examples used in the surfaces experiments can be found in the `examples/surfaces` folder.
-These simplicial complexes were taken from Frank Lutz's webpage, for a complete list of available triangualtions of surfaces and more see [here](https://www3.math.tu-berlin.de/IfM/Nachrufe/Frank_Lutz/stellar/)
-
-Running just the surfaces benchmark script can be run by either the following command from the project root 
-
-```
-    julia --project=. run_times_surfaces.jl
-```
-
-or running 
-
-```
-    julia> include("run_times_surfaces.jl")
-```
-
-from a julia repl with the project environment activated.
-
-## Non surfaces
-
-The examples used in the surfaces experiments can be found in the `examples/non_surfaces` folder.
-
-Running just the non surfaces benchmark script can be run by either the following command from the project root 
-
-```
-    julia --project=. run_times_non_surfaces.jl
-```
-
-or running 
-
-```
-    julia> include("run_times_non_surfaces.jl")
-```
-
-from a julia repl with the project environment activated.
+ * `run_times_bipartite.jl`: different bipartite graphs
+ * `run_times_surfaces.jl`: surface triangulations (in the `examples/surfaces`).
+   These were taken from Frank Lutz's [compilation of manifold triangulations](https://www3.math.tu-berlin.de/IfM/Nachrufe/Frank_Lutz/stellar/).
+ * `run_times_surfaces_extra.jl`: A few surface triangulations are made subject to more experiments with more varying parameters.
+ * `run_times_non_surfaces.hl` manually built simplicial complexes with prescribed H1 (in `examples/non_surfaces`).
+   See article for details how these are built.
