@@ -42,7 +42,7 @@ open(non_surfaces_table_path, "w") do f
       timings = [example_file, homology(K, 1), n_vertices(S), length(faces(S)), q]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
-        result = run_function(run_benchmark, S, algo, F; remote=true, time_limit=3, finite_field_lv_trials=500)
+        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500)
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)

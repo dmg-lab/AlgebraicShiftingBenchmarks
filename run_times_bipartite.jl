@@ -42,7 +42,7 @@ algorithms = [
 # If `useremote` is set, worker processes are prepared for remote execution asynchronously while the benchmark is running.
 # To be safe from memory leaks etc., the workers are removed at the end of each benchmark.
 # Start a few workers to have them ready for the benchmark.
-useremote = true
+useremote = false
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
