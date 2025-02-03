@@ -21,7 +21,7 @@ The following command will set a ulimit of 80GiB and disables swapping:
 
 ## Building julia environment
 
-Using the provided Manifest.toml requires julia version 1.10.7.
+Using the provided Manifest.toml requires julia version 1.10.8.
 To start julia from the root of the project and activate the environment for the project run.
 
 ```
