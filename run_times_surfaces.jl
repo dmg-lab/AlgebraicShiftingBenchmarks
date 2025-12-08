@@ -1,4 +1,4 @@
-
+using Revise
 # See run_times_bijective.jl for a similar example with comments.
 
 include("benchmark_helpers.jl")
@@ -22,11 +22,11 @@ fields = [
   62710561 => "F62710561"
 ]
 
-useremote = true
-useremote && initialize_new_worker()
-useremote && initialize_new_worker()
-useremote && initialize_new_worker()
-useremote && initialize_new_worker()
+useremote = false #true
+#useremote && initialize_new_worker()
+#useremote && initialize_new_worker()
+#useremote && initialize_new_worker()
+#useremote && initialize_new_worker()
 
 @info "Benchmarking Surfaces examples"
 
@@ -43,7 +43,7 @@ open(surfaces_table_path, "w") do f
     # Parse the filename into the parameters
     nr, dim, n, orientable, genus, index = match(r"^(\d\d)_manifold_lex_d(\d)_n(\d)_o(\d)_g(\d)_(\d\d)\..*$", example_file).captures
 
-    prev_uhg = Dict{Tuple{Int, String}, Any}((F, algo.first) => nothing for algo in algorithms for (F, _) in fields)
+    prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
     # Only shift the hypergraph of the 2-facets of K
     for q in 1:tryparse(Int, dim)
       S = uniform_hypergraph(K, q+1)
@@ -54,8 +54,10 @@ open(surfaces_table_path, "w") do f
         result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
+        if !isnothing(result)
+          prev_uhg[(F, algo)] = popfirst!(result)
+        end
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
-        prev_uhg[(F, algo)] = result
       end
       println(f, join(timings, ", "))
       flush(f)

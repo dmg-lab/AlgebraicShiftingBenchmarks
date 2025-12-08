@@ -1,17 +1,4 @@
 using Oscar, DataStructures, Distributed
-import Serialization.serialize
-import Serialization.deserialize
-import Serialization.serialize_type
-import Distributed.AbstractSerializer
-
-function serialize(s::AbstractSerializer, uhg::UniformHypergraph)
-  serialize_type(s, UniformHypergraph)
-  serialize(s, faces(uhg))
-end
-
-function deserialize(s::AbstractSerializer, T::Type{UniformHypergraph})
-  uniform_hypergraph(deserialize(s))
-end
 
 add_ref_labels(alg, alg_labels) = [alg_labels; alg .* ref_labels]
 
@@ -53,8 +40,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
     pid = get_worker() # Get initialized worker to run f
     try
       future = @async remotecall_fetch(show_result(f), pid, args...; kwargs...) # call remotely on worker
-      
-      println(future)
+
       if timedwait(()->istaskdone(future), time_limit * 60*60) == :timed_out
         @warn "Remote worker $pid timed out"
         return :timed_out
@@ -95,8 +81,8 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   # Just to force compilation
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf, las_vegas_trials=0)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
+  #exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
+  #exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
   exterior_shift(klein_bottle())
 
   # The lv algorithm might not run ref! at all.
@@ -108,31 +94,32 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf, kw...)
-    return (t.time, t.bytes, logger[:ref]...)
+    return [t.value[1], t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "avf"
     println("Running avf algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl, kw...)
-    return (t.time, t.bytes, logger[:ref]...)
+    return [t.value[1], t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hv"
     println("Running hv algorithm")
     t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf, kw...)
-    return (t.time, t.bytes, logger[:ref]...)
+    return [t.value[1], t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hvf"
     println("Running hvf algorithm")
     t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl, kw...)
-    return (t.time, t.bytes, logger[:ref]...)
+    return [t.value[1], t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "lv"
     println("Running lv algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
     t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_cf, kw...)
-    return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
+    println(t)
+    return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   elseif algorithm == "lvf"
     println("Running lvf algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
     t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_fl, kw...)
-    return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
+    return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   else
     error("Unknown algorithm type")
   end
