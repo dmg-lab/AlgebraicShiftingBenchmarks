@@ -43,7 +43,7 @@ function rref_lazy_pivots!(m::AbstractAlgebra.Generic.MatSpaceElem{T}; logger::M
       break
     end
     # Find the shortest non-zero polynomial in c
-    _, i = efindmin(length, c[:,1]; filter=!iszero)
+    _, i = Oscar.efindmin(length, c[:,1]; filter=!iszero)
     # Use that as pivot; move corresponding row into row r+1
     if i > 1
       swap_rows!(v, r+i, r+1)

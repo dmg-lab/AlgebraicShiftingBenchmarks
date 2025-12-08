@@ -1,3 +1,4 @@
+
 # See run_times_bijective.jl for a similar example with comments.
 
 include("benchmark_helpers.jl")
@@ -36,22 +37,25 @@ println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) 
 open(surfaces_table_path, "w") do f
   # Table headers
   println(f, join(["#, instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
-  for example_file in readdir(surfaces_dir)
+  for example_file in readdir(surfaces_dir)[1:12]
     println("Surface: $example_file")
     K = load(joinpath(surfaces_dir, example_file))
     # Parse the filename into the parameters
     nr, dim, n, orientable, genus, index = match(r"^(\d\d)_manifold_lex_d(\d)_n(\d)_o(\d)_g(\d)_(\d\d)\..*$", example_file).captures
+
+    prev_uhg = Dict{Tuple{Int, String}, Any}((F, algo.first) => nothing for algo in algorithms for (F, _) in fields)
     # Only shift the hypergraph of the 2-facets of K
-    for q in 2:tryparse(Int, dim)
+    for q in 1:tryparse(Int, dim)
       S = uniform_hypergraph(K, q+1)
       # Initial entries of the row
       timings = [nr, example_file, dim, n_vertices(S), length(faces(S)), orientable, genus, index, q]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
-        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=time_limit)
+        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
+        prev_uhg[(F, algo)] = result
       end
       println(f, join(timings, ", "))
       flush(f)
