@@ -1,4 +1,3 @@
-using Revise
 # See run_times_bijective.jl for a similar example with comments.
 
 include("benchmark_helpers.jl")

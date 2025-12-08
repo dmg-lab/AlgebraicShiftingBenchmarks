@@ -65,6 +65,11 @@ open(bipartite_table_path, "w") do f
       # If the process died for some reason, put in appropriate number of "oom" or "oot".
       # The function might also have put n/a in the ref! columns; cf the las vegas algorithm.
       n_columns = length(labels) + length(ref_labels)
+      if !isnothing(result)
+        # remove uniform hypergraph from row results
+        popfirst!(result)
+      end
+
       append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
     end
     l *= join(timings, ", ")

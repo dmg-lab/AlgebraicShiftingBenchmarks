@@ -44,14 +44,19 @@ open(surfaces_extra_table_path, "w") do f
       continue
     end
     println("Surface: $example_file")
-      # Produce timings for each field and algorithm
-    for q in 2:dim
+    # Produce timings for each field and algorithm
+    prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
+    for q in 1:dim
       S = uniform_hypergraph(K, q+1)
       timings = [nr, example_file, dim, n_vertices(S), length(faces(S)), orientable, genus, index, q]
       for (fieldsize, _) in fields, (algo, labels) in algorithms
-        result = run_function(run_benchmark, S, algo, fieldsize; remote=useremote, time_limit=time_limit)
+        result = run_function(run_benchmark, S, algo, fieldsize; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
+        if !isnothing(result)
+          prev_uhg[(F, algo)] = popfirst!(result)
+        end
+
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
       end
       println(f, join(timings, ", "))
