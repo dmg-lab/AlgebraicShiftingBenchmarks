@@ -62,7 +62,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
       @async rmprocs(pid)
     end
   else
-    return f(args...)
+    return f(args...; kwargs...)
   end
 end
 

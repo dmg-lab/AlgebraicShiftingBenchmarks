@@ -22,11 +22,11 @@ fields = [
   62710561 => "F62710561"
 ]
 
-useremote = false #true
-#useremote && initialize_new_worker()
-#useremote && initialize_new_worker()
-#useremote && initialize_new_worker()
-#useremote && initialize_new_worker()
+useremote = true
+useremote && initialize_new_worker()
+useremote && initialize_new_worker()
+useremote && initialize_new_worker()
+useremote && initialize_new_worker()
 
 @info "Benchmarking Surfaces examples"
 
