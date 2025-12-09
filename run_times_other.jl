@@ -28,7 +28,7 @@ useremote && initialize_new_worker()
 useremote && initialize_new_worker()
 
 @info "Benchmarking non Surfaces examples"
-non_surfaces_dir = joinpath(root_of_project, "examples", "other_surfaces")
+non_surfaces_dir = joinpath(root_of_project, "examples", "other_examples")
 open(non_surfaces_table_path, "w") do f
   # Table headers
   println(f, join(["instance", "H1", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
