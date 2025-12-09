@@ -53,7 +53,7 @@ open(surfaces_extra_table_path, "w") do f
         result = run_function(run_benchmark, S, algo, fieldsize; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
-        if !isnothing(result)
+        if !isnothing(result) && !(result isa Symbol)
           prev_uhg[(F, algo)] = popfirst!(result)
         end
 

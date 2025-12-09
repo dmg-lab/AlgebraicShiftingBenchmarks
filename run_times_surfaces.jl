@@ -36,7 +36,7 @@ println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) 
 open(surfaces_table_path, "w") do f
   # Table headers
   println(f, join(["#, instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
-  for example_file in readdir(surfaces_dir)
+  for example_file in readdir(surfaces_dir)[29:end]
     println("Surface: $example_file")
     K = load(joinpath(surfaces_dir, example_file))
     # Parse the filename into the parameters
@@ -53,7 +53,7 @@ open(surfaces_table_path, "w") do f
         result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
-        if !isnothing(result)
+        if !isnothing(result) && !(result isa Symbol)
           prev_uhg[(F, algo)] = popfirst!(result)
         end
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
