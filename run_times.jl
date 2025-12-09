@@ -1,6 +1,6 @@
 # Run this file with (for example):
 #   ulimit -v 80000000 -x 0
-#   julia --heap-size-hint=1 --project=. run_times.jl
+#   julia --heap-size-hint=1 --project=. run_times_other.jl
 
 
 include("run_times_surfaces.jl")
