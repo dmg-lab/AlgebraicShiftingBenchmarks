@@ -56,7 +56,10 @@ open(surfaces_extra_table_path, "w") do f
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
         if !isnothing(result) && !(result isa Symbol)
-          prev_uhg[(F, algo)] = popfirst!(result)
+          value = popfirst!(result)
+          if !isnothing(value)
+            prev_uhg[(F, algo)] = value
+          end
         end
 
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
