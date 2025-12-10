@@ -31,6 +31,7 @@ useremote && initialize_new_worker()
 surfaces_dir = joinpath(root_of_project, "examples", "surfaces")
 instance_files = readdir(surfaces_dir)
 time_limit = 1/6
+
 println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) * length(fields) * length(algorithms)) hours")
 open(surfaces_extra_table_path, "w") do f
   # Table headers
@@ -40,13 +41,14 @@ open(surfaces_extra_table_path, "w") do f
     # Parse the filename into the parameters
     nr, dim, n, orientable, genus, index = match(r"^(\d\d)_manifold_lex_d(\d)_n(\d)_o(\d)_g(\d)_(\d\d)\..*$", example_file).captures
     # Only compute the shifts of the surfaces that remain after the following:
-    if n != 8 || orientable != 1 || genus != 0
+    if n != "8" || orientable != "1" || genus != "0"
       continue
     end
+
     println("Surface: $example_file")
     # Produce timings for each field and algorithm
     prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
-    for q in 1:dim
+    for q in 1:tryparse(Int, dim)
       S = uniform_hypergraph(K, q+1)
       timings = [nr, example_file, dim, n_vertices(S), length(faces(S)), orientable, genus, index, q]
       for (fieldsize, _) in fields, (algo, labels) in algorithms
