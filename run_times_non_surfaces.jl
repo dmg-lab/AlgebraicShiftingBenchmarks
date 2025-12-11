@@ -21,7 +21,7 @@ fields = [
 #  62710561 => "F62710561"
 ]
 
-useremote = true
+useremote = false
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
@@ -31,7 +31,7 @@ useremote && initialize_new_worker()
 non_surfaces_dir = joinpath(root_of_project, "examples", "non_surfaces")
 open(non_surfaces_table_path, "w") do f
   # Table headers
-  println(f, join(["instance", "H1", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+  println(f, join(["instance", "Hq-1", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
   for example_file in readdir(non_surfaces_dir)[3:end]
     println("Non Surface: $example_file")
     K = load(joinpath(non_surfaces_dir, example_file))
@@ -39,7 +39,7 @@ open(non_surfaces_table_path, "w") do f
     for q in 1:dim(K)
       S = uniform_hypergraph(K, q+1)
       # Initial entries of the row
-      timings = [example_file, homology(K, 1), n_vertices(S), length(faces(S)), q]
+      timings = [example_file, homology(K, q-1), n_vertices(S), length(faces(S)), q]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
         result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500, lower_uhg=prev_uhg[(F, algo)])
