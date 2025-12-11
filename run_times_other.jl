@@ -21,7 +21,7 @@ fields = [
 #  62710561 => "F62710561"
 ]
 
-useremote = false
+useremote = true
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
@@ -42,10 +42,9 @@ open(other_examples_table_path, "w") do f
       timings = [example_file, dim(K), n_vertices(S), q, homology(K, q-1), length(faces(S))]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
-        # result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500, lower_uhg=prev_uhg[(F, algo)])
+        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
-        result = [[uniform_hypergraph(Vector{Int}[], 0, 0)]; [:timed_out for _ in 1:n_columns]]
         if !isnothing(result) && !(result isa Symbol)
           value = popfirst!(result)
           if !isnothing(value)
