@@ -7,17 +7,13 @@ const root_of_project = dirname(Base.active_project())
 surfaces_extra_table_path = joinpath(root_of_project, "surfaces_extra_test_$computer_name.csv")
 
 algorithms = [
-  "hv"   => ["hvTime", "hvMemory"],
-  # "lv" has been run already in run_times_surfaces.jl
-  "hvf"  => ["hvfTime", "hvfMemory"],
+  #"hv"   => ["hvTime", "hvMemory"],
+  "lv" => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"],
+  #"hvf"  => ["hvfTime", "hvfMemory"],
   "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]
 ]
 fields = [
-  0 => "QQ",
-  2 => "F2",
-  3 => "F3",
-  5 => "F5",
-  7919 => "F7919",
+  2 => "F2"
 ]
 
 useremote = true
@@ -40,23 +36,23 @@ open(surfaces_extra_table_path, "w") do f
     # Parse the filename into the parameters
     nr, dim, n, orientable, genus, index = match(r"^(\d\d)_manifold_lex_d(\d)_n(\d)_o(\d)_g(\d)_(\d\d)\..*$", example_file).captures
     # Only compute the shifts of the surfaces that remain after the following:
-    if n != 8 || orientable != 1 || genus != 0
+    if n != "8" || orientable != "1" || genus != "0"
       continue
     end
     println("Surface: $example_file")
     # Produce timings for each field and algorithm
     prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
-    for q in 1:dim
+    for q in 1:tryparse(Int, dim)
       S = uniform_hypergraph(K, q+1)
       timings = [nr, example_file, dim, n_vertices(S), length(faces(S)), orientable, genus, index, q]
       for (fieldsize, _) in fields, (algo, labels) in algorithms
-        result = run_function(run_benchmark, S, algo, fieldsize; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(F, algo)])
+        result = run_function(run_benchmark, S, algo, fieldsize; remote=useremote, time_limit=time_limit, lower_uhg=prev_uhg[(fieldsize, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
         if !isnothing(result) && !(result isa Symbol)
           value = popfirst!(result)
           if !isnothing(value)
-            prev_uhg[(F, algo)] = value
+            prev_uhg[(fieldsize, algo)] = value
           end
         end
 
