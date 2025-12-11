@@ -31,7 +31,7 @@ useremote && initialize_new_worker()
 other_examples_dir = joinpath(root_of_project, "examples", "other_examples")
 open(other_examples_table_path, "w") do f
   # Table headers
-  println(f, join(["instance", "Hq-1", "nVertices", "nFaces", "q", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
+  println(f, join(["instance", "dim", "nVertices", "q", "Hq-1", "nFaces", ["$(f[2])$(uppercasefirst(l))" for f in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
   for example_file in readdir(other_examples_dir)
     println("Other Examples: $example_file")
     K = load(joinpath(other_examples_dir, example_file))
@@ -39,7 +39,7 @@ open(other_examples_table_path, "w") do f
     for q in 1:dim(K)
       S = uniform_hypergraph(K, q+1)
       # Initial entries of the row
-      timings = [example_file, homology(K, q-1), n_vertices(S), length(faces(S)), q]
+      timings = [example_file, dim(K), n_vertices(S), q, homology(K, q-1), length(faces(S))]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
         # result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500, lower_uhg=prev_uhg[(F, algo)])
