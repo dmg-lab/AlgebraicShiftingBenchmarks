@@ -94,21 +94,21 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf, kw...)
-    return [t.value[1], t.time, t.bytes, logger[:ref]...]
+    return [t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "avf"
     println("Running avf algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl, kw...)
-    return [t.value[1], t.time, t.bytes, logger[:ref]...]
+    return [t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hv"
     println("Running hv algorithm")
-    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf, kw...)
-    return [t.value[1], t.time, t.bytes, logger[:ref]...]
+    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf, las_vegas_trials=0, kw...)
+    return [t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hvf"
     println("Running hvf algorithm")
-    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl, kw...)
-    return [t.value[1], t.time, t.bytes, logger[:ref]...]
+    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl, las_vegas_trials=0, kw...)
+    return [t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "lv"
     println("Running lv algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
