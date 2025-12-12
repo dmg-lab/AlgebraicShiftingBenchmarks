@@ -27,6 +27,7 @@ useremote && initialize_new_worker()
 surfaces_dir = joinpath(root_of_project, "examples", "surfaces")
 instance_files = readdir(surfaces_dir)
 time_limit = 1/6
+
 println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) * length(fields) * length(algorithms)) hours")
 open(surfaces_extra_table_path, "w") do f
   # Table headers
@@ -39,6 +40,7 @@ open(surfaces_extra_table_path, "w") do f
     if n != "8" || orientable != "1" || genus != "0"
       continue
     end
+
     println("Surface: $example_file")
     # Produce timings for each field and algorithm
     prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
