@@ -7,9 +7,9 @@ const root_of_project = dirname(Base.active_project())
 surfaces_extra_table_path = joinpath(root_of_project, "surfaces_extra_test_$computer_name.csv")
 
 algorithms = [
-  "hv"   => ["hvTime", "hvMemory"],
+  #"hv"   => ["hvTime", "hvMemory"],
   "lv" => ["lvTime", "lvMemory", "lvTrials", "lvTimeA", "lvMemoryA", "lvTimeB", "lvMemory"],
-  "hvf"  => ["hvfTime", "hvfMemory"],
+  #"hvf"  => ["hvfTime", "hvfMemory"],
   "lvf"  => ["lvfTime", "lvfMemory", "lvfTrials", "lvfTimeA", "lvfMemoryA", "lvfTimeB", "lvfMemory"]
 ]
 fields = [
@@ -26,7 +26,7 @@ useremote && initialize_new_worker()
 
 surfaces_dir = joinpath(root_of_project, "examples", "surfaces")
 instance_files = readdir(surfaces_dir)
-time_limit = 1/6
+time_limit = 1
 
 println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) * length(fields) * length(algorithms)) hours")
 open(surfaces_extra_table_path, "w") do f
