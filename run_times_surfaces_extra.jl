@@ -32,7 +32,7 @@ println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) 
 open(surfaces_extra_table_path, "w") do f
   # Table headers
   println(f, join(["#", "instance", "dim", "nVertices", "nFaces", "orientable", "genus", "index", "q", ["$(field)$(uppercasefirst(l))" for (_,field) in fields for (algo, label) in algorithms for l in add_ref_labels(algo, label)]...], ", "))
-  for example_file in readdir(surfaces_dir)[12:34]
+  for example_file in readdir(surfaces_dir)[[12:34..., 49:55...]]
     K = load(joinpath(surfaces_dir, example_file))
     # Parse the filename into the parameters
     nr, dim, n, orientable, genus, index = match(r"^(\d\d)_manifold_lex_d(\d)_n(\d)_o(\d)_g(\d)_(\d\d)\..*$", example_file).captures
