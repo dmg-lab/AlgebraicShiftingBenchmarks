@@ -26,7 +26,7 @@ useremote && initialize_new_worker()
 
 surfaces_dir = joinpath(root_of_project, "examples", "surfaces")
 instance_files = readdir(surfaces_dir)
-time_limit = 1
+time_limit = .5
 
 println(stderr, "Benchmark can take up to $(time_limit * length(instance_files) * length(fields) * length(algorithms)) hours")
 open(surfaces_extra_table_path, "w") do f
