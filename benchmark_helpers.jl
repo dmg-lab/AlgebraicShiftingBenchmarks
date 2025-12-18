@@ -94,13 +94,13 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf, kw...)
-    return [t.time, t.bytes, logger[:ref]...]
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "avf"
     println("Running avf algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
     t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl, kw...)
-    return [t.time, t.bytes, logger[:ref]...]
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hv"
     println("Running hv algorithm")
     t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf, las_vegas_trials=0, kw...)
