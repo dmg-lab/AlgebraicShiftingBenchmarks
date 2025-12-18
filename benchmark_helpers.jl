@@ -1,5 +1,26 @@
 using Oscar, DataStructures, Distributed
 
+function exterior_shift_lv_timed(F::Field, K::ComplexOrHypergraph, p::PermGroupElem; n_samples=100, kw...)
+  # this might need to be changed based on the characteristic
+  # we expect that the larger the characteristic the smaller the sample needs to be
+  # setting to 100 now for good measure
+  # Compute n_samples many shifts by radom matrices, and take the lexicographically minimal one, together with its first index of occurrence.
+  
+  random_matrices = [random_rothe_matrix(F, p) for _ in 1:n_samples]
+  (shift, i), stats... = @timed Oscar.efindmin((exterior_shift(K, r) for (i, r) in enumerate(random_matrices)); lt=isless_lex)
+  # Check if `shift` is the generic exterior shift of K
+  prime_field = characteristic(F) == 0 ? QQ : fpField(UInt(characteristic(F)))
+  n = n_vertices(K)
+  # check shifted is algorithm 3 in the paper
+  is_correct_shift, stats2... = @timed (p != perm(reverse(1:n)) || is_shifted(shift)) && Oscar.check_shifted(prime_field, K, shift, p; kw...)
+  
+  if is_correct_shift
+    return shift, (i, stats.time, stats.bytes, stats2.time, stats2.bytes)
+  else
+    return nothing, (">$n_samples", stats.time, stats.bytes, stats2.time, stats2.bytes)
+  end
+end
+
 add_ref_labels(alg, alg_labels) = [alg_labels; alg .* ref_labels]
 
 workers_ready = Queue{Task}()
@@ -79,12 +100,12 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger)
 
   # Just to force compilation
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf, las_vegas_trials=0)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
   exterior_shift(klein_bottle())
-
+  
   # The lv algorithm might not run ref! at all.
   logger[:ref] = fill("n/a", length(ref_labels))
 
@@ -112,13 +133,12 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   elseif algorithm == "lv"
     println("Running lv algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
-    t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_cf, kw...)
-    println(t)
+    t = @timed exterior_shift_lv_timed(F, K, p; n_samples=trials, (ref!)=logging_rref_cf, kw...)
     return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   elseif algorithm == "lvf"
     println("Running lvf algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
-    t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_fl, kw...)
+    t = @timed exterior_shift_lv_timed(F, K, p; n_samples=trials, (ref!)=logging_rref_fl, kw...)
     return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   else
     error("Unknown algorithm type")
