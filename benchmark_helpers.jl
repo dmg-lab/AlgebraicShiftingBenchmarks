@@ -1,4 +1,5 @@
 using Oscar, DataStructures, Distributed
+import Oscar: isless_lex, random_rothe_matrix, ComplexOrHypergraph, efindmin
 
 function exterior_shift_lv_timed(F::Field, K::ComplexOrHypergraph, p::PermGroupElem; n_samples=100, kw...)
   # this might need to be changed based on the characteristic
@@ -7,7 +8,7 @@ function exterior_shift_lv_timed(F::Field, K::ComplexOrHypergraph, p::PermGroupE
   # Compute n_samples many shifts by radom matrices, and take the lexicographically minimal one, together with its first index of occurrence.
   
   random_matrices = [random_rothe_matrix(F, p) for _ in 1:n_samples]
-  (shift, i), stats... = @timed Oscar.efindmin((exterior_shift(K, r) for (i, r) in enumerate(random_matrices)); lt=isless_lex)
+  (shift, i), stats... = @timed efindmin((exterior_shift(K, r) for (i, r) in enumerate(random_matrices)); lt=isless_lex)
   # Check if `shift` is the generic exterior shift of K
   prime_field = characteristic(F) == 0 ? QQ : fpField(UInt(characteristic(F)))
   n = n_vertices(K)
@@ -100,9 +101,9 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger)
 
   # Just to force compilation
-  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]), perm(reverse(1:4)); (ref!)=logging_rref_cf)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf, las_vegas_trials=0)
-  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]], perm(reverse(1:4))); (ref!)=logging_rref_fl)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
   exterior_shift(klein_bottle())
   
