@@ -103,7 +103,7 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   # Just to force compilation
   exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]), perm(reverse(1:4)); (ref!)=logging_rref_cf)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf, las_vegas_trials=0)
-  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]], perm(reverse(1:4))); (ref!)=logging_rref_fl)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]), perm(reverse(1:4)); (ref!)=logging_rref_fl)
   exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
   exterior_shift(klein_bottle())
   
