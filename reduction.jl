@@ -4,14 +4,14 @@ Maybe{T} = Union{T, Nothing}
 Logger = Dict{Symbol, Any}
 
 # For a matrix with entries in a multivariate polynomial ring, return the maximal length and maximal degree of the polynomials.
-_stats(m::AbstractAlgebra.Generic.MatSpaceElem{T}) where T <: MPolyRingElem = [maximum(length.(m)), maximum(total_degree.(m))]
+_stats(m::MatElem{T}) where T <: MPolyRingElem = [maximum(length.(m)), maximum(total_degree.(m))]
 
 # Column labels relevant for output tables.
 ref_labels = ["maxLenBefore", "maxDegBefore", "maxLenAfter", "maxDegAfter"]
 
 # Wrapper for the Gaussian row elimination in Oscar.ModStdQt.ref_ff_rc! that logs some statistics
 # (maximal length, maximal degree) of the matrix before and after the elimination.
-function ref_ff_rc_wrapper!(m::AbstractAlgebra.Generic.MatSpaceElem{T}; logger::Maybe{Logger}=nothing) where T <: MPolyRingElem
+function ref_ff_rc_wrapper!(m::MatElem{T}; logger::Maybe{Logger}=nothing) where T <: MPolyRingElem
   if isnothing(logger)
     return Oscar.ModStdQt.ref_ff_rc!(m)
   else
@@ -24,7 +24,7 @@ function ref_ff_rc_wrapper!(m::AbstractAlgebra.Generic.MatSpaceElem{T}; logger::
 end
 
 # Alternative (lazy) row reduction algorithm, as described in the paper.
-function rref_lazy_pivots!(m::AbstractAlgebra.Generic.MatSpaceElem{T}; logger::Maybe{Logger}=nothing) where T <: MPolyRingElem
+function rref_lazy_pivots!(m::MatElem{T}; logger::Maybe{Logger}=nothing) where T <: MPolyRingElem
   v = identity_matrix(base_ring(m), size(m, 1))
   r = 0
   I = Int[]
