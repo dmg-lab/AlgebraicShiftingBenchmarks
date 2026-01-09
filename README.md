@@ -21,7 +21,6 @@ The following command will set a ulimit of 80GiB and disables swapping:
 
 ## Building julia environment
 
-Using the provided Manifest.toml requires julia version 1.10.8.
 To start julia from the root of the project and activate the environment for the project run.
 
 ```
@@ -29,10 +28,9 @@ To start julia from the root of the project and activate the environment for the
 ```
 
 Running the following command from the julia repl will setup the necessary dependancies. 
-We have included a Manifest.toml so that a particular branch of Oscar is being used for benchmarking. 
 
 ```
-    julia> ]up
+    julia> ]instantiate
 ```
 
 # Experiments
@@ -48,8 +46,9 @@ All scripts can be run one after the other by either running
 We include the following experiments:
 
  * `run_times_bipartite.jl`: different bipartite graphs
- * `run_times_surfaces.jl`: surface triangulations (in the `examples/surfaces`).
+ * `run_times_surfaces.jl`: surface triangulations (in `examples/surfaces`).
    These were taken from Frank Lutz's [compilation of manifold triangulations](https://www3.math.tu-berlin.de/IfM/Nachrufe/Frank_Lutz/stellar/).
  * `run_times_surfaces_extra.jl`: A few surface triangulations are made subject to more experiments with more varying parameters.
- * `run_times_non_surfaces.hl` manually built simplicial complexes with prescribed H1 (in `examples/non_surfaces`).
-   See article for details how these are built.
+ * `run_times_non_surfaces.jl`: manually built simplicial complexes with prescribed H1 (in `examples/non_surfaces`). See article for details how these are built.
+ * `run_times_other.jl`: A collection of higher dimensional manifolds (in `examples/other_examples`).
+
