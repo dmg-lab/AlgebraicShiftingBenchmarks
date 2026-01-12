@@ -17,8 +17,8 @@ fields = [
   9 => "F9",
   5 => "F5",
   25 => "F25",
-  7919 => "F7919",
-  62710561 => "F62710561"
+#  7919 => "F7919",
+#  62710561 => "F62710561"
 ]
 
 useremote = true
@@ -35,16 +35,23 @@ open(non_surfaces_table_path, "w") do f
   for example_file in readdir(non_surfaces_dir)
     println("Non Surface: $example_file")
     K = load(joinpath(non_surfaces_dir, example_file))
-    # Only shift the hypergraph of the 2-facets of K
-    for q in 2:dim(K)
+    prev_uhg = Dict{Tuple{Int, String}, UniformHypergraph}((F, algo.first) => uniform_hypergraph(Vector{Int}[]) for algo in algorithms for (F, _) in fields)
+    for q in 1:dim(K)
       S = uniform_hypergraph(K, q+1)
       # Initial entries of the row
       timings = [example_file, homology(K, 1), n_vertices(S), length(faces(S)), q]
       # Produce timings for each field and algorithm
       for (F, _) in fields, (algo, labels) in algorithms
-        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500)
+        result = run_function(run_benchmark, S, algo, F; remote=useremote, time_limit=3, finite_field_lv_trials=500, lower_uhg=prev_uhg[(F, algo)])
         # Append the results to the timings, or, if computation died or timed out, append correct number of "oom" or "oot" respectively.
         n_columns = length(labels) + length(ref_labels)
+        if !isnothing(result) && !(result isa Symbol)
+          value = popfirst!(result)
+          if !isnothing(value)
+            prev_uhg[(F, algo)] = value
+          end
+        end
+
         append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
       end
       println(f, join(timings, ", "))

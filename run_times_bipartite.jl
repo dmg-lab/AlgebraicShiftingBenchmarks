@@ -42,7 +42,7 @@ algorithms = [
 # If `useremote` is set, worker processes are prepared for remote execution asynchronously while the benchmark is running.
 # To be safe from memory leaks etc., the workers are removed at the end of each benchmark.
 # Start a few workers to have them ready for the benchmark.
-useremote = false
+useremote = true
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
 useremote && initialize_new_worker()
@@ -65,6 +65,11 @@ open(bipartite_table_path, "w") do f
       # If the process died for some reason, put in appropriate number of "oom" or "oot".
       # The function might also have put n/a in the ref! columns; cf the las vegas algorithm.
       n_columns = length(labels) + length(ref_labels)
+      if !isnothing(result)
+        # remove uniform hypergraph from row results
+        popfirst!(result)
+      end
+
       append!(timings, isnothing(result) ? fill("oom", n_columns) : result == :timed_out ? fill("oot", n_columns) : result)
     end
     l *= join(timings, ", ")

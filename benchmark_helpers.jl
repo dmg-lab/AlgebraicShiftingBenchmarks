@@ -1,4 +1,26 @@
 using Oscar, DataStructures, Distributed
+import Oscar: isless_lex, random_rothe_matrix, ComplexOrHypergraph, efindmin
+
+function exterior_shift_lv_timed(F::Field, K::ComplexOrHypergraph, p::PermGroupElem; n_samples=100, kw...)
+  # this might need to be changed based on the characteristic
+  # we expect that the larger the characteristic the smaller the sample needs to be
+  # setting to 100 now for good measure
+  # Compute n_samples many shifts by radom matrices, and take the lexicographically minimal one, together with its first index of occurrence.
+  
+  random_matrices = [random_rothe_matrix(F, p) for _ in 1:n_samples]
+  (shift, i), stats... = @timed efindmin((exterior_shift(K, r) for (i, r) in enumerate(random_matrices)); lt=isless_lex)
+  # Check if `shift` is the generic exterior shift of K
+  prime_field = characteristic(F) == 0 ? QQ : fpField(UInt(characteristic(F)))
+  n = n_vertices(K)
+  # check shifted is algorithm 3 in the paper
+  is_correct_shift, stats2... = @timed (p != perm(reverse(1:n)) || is_shifted(shift)) && Oscar.check_shifted(prime_field, K, shift, p; kw...)
+  
+  if is_correct_shift
+    return shift, (i, stats.time, stats.bytes, stats2.time, stats2.bytes)
+  else
+    return nothing, (">$n_samples", stats.time, stats.bytes, stats2.time, stats2.bytes)
+  end
+end
 
 add_ref_labels(alg, alg_labels) = [alg_labels; alg .* ref_labels]
 
@@ -40,7 +62,7 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
     pid = get_worker() # Get initialized worker to run f
     try
       future = @async remotecall_fetch(show_result(f), pid, args...; kwargs...) # call remotely on worker
-      println(future)
+
       if timedwait(()->istaskdone(future), time_limit * 60*60) == :timed_out
         @warn "Remote worker $pid timed out"
         return :timed_out
@@ -62,12 +84,12 @@ function run_function(f, args...; remote=true, time_limit=1, kwargs...)
       @async rmprocs(pid)
     end
   else
-    return f(args...)
+    return f(args...; kwargs...)
   end
 end
 
 include("reduction.jl")
-function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field_lv_trials::Int64=500)
+function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field_lv_trials::Int64=500, kw...)
   Oscar.randseed!(1)
   n = n_vertices(K)
   p = perm(reverse(1:n))
@@ -79,11 +101,12 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
   logging_rref_fl(m) = rref_lazy_pivots!(m; logger=logger)
 
   # Just to force compilation
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
-  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl)
-
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]), perm(reverse(1:4)); (ref!)=logging_rref_cf)
+  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_cf, las_vegas_trials=0)
+  exterior_shift_lv_timed(QQ, uniform_hypergraph([[1,3],[1,4]]), perm(reverse(1:4)); (ref!)=logging_rref_fl)
+  exterior_shift(uniform_hypergraph([[1,3],[1,4]]); (ref!)=logging_rref_fl, las_vegas_trials=0)
+  exterior_shift(klein_bottle())
+  
   # The lv algorithm might not run ref! at all.
   logger[:ref] = fill("n/a", length(ref_labels))
 
@@ -92,32 +115,32 @@ function run_benchmark(K::UniformHypergraph, algorithm, fsize::Int; finite_field
     println("Running av algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
-    t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf)
-    return (t.time, t.bytes, logger[:ref]...)
+    t = @timed exterior_shift(K, g; (ref!)=logging_rref_cf, kw...)
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "avf"
     println("Running avf algorithm")
     R, x = polynomial_ring(F, :x => (1:n, 1:n))
     g = matrix(R, x)
-    t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl)
-    return (t.time, t.bytes, logger[:ref]...)
+    t = @timed exterior_shift(K, g; (ref!)=logging_rref_fl, kw...)
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hv"
     println("Running hv algorithm")
-    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf)
-    return (t.time, t.bytes, logger[:ref]...)
+    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_cf, las_vegas_trials=0, kw...)
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "hvf"
     println("Running hvf algorithm")
-    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl)
-    return (t.time, t.bytes, logger[:ref]...)
+    t = @timed exterior_shift(F, K, p; (ref!)=logging_rref_fl, las_vegas_trials=0, kw...)
+    return [t.value, t.time, t.bytes, logger[:ref]...]
   elseif algorithm == "lv"
     println("Running lv algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
-    t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_cf)
-    return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
+    t = @timed exterior_shift_lv_timed(F, K, p; n_samples=trials, (ref!)=logging_rref_cf, kw...)
+    return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   elseif algorithm == "lvf"
     println("Running lvf algorithm")
     trials = (F isa QQField) ? 1 : finite_field_lv_trials
-    t = @timed exterior_shift(F, K, p; las_vegas_trials=trials, timed=true, (ref!)=logging_rref_fl)
-    return (t.time, t.bytes, t.value[2]..., logger[:ref]...)
+    t = @timed exterior_shift_lv_timed(F, K, p; n_samples=trials, (ref!)=logging_rref_fl, kw...)
+    return [t.value[1], t.time, t.bytes, t.value[2]..., logger[:ref]...]
   else
     error("Unknown algorithm type")
   end
